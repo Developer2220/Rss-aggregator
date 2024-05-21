@@ -26,7 +26,7 @@ export const render = (path, newValue) => {
             input.focus();
         }
         break
-        case 'form.massage':
+        case 'form.message':
             formMessageNode.innerHTML = newValue;
             break
     }
