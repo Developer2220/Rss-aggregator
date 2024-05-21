@@ -16,7 +16,7 @@ const watchedState = onChange(state, render)
 
 const validateUrl = async (url) => {
   try {
-    Yup.string().trim().required().url().notOneOf(watchedState.feeds).validate(url);
+    await Yup.string().trim().required().url().notOneOf(watchedState.feeds).validate(url);
     return true
   } catch {
     return false
