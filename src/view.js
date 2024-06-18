@@ -4,9 +4,6 @@ const input = document.querySelector('.form-control');
 const formMessageNode = document.querySelector('.feedback');
 const form = document.querySelector('.rss-form');
 
-// const submit = document.querySelector('[type="submit"]');
-// inputValue.addEventListener("input");
-
 export const subscribe = () => {
     form.addEventListener('submit', onSubmit);
 }
