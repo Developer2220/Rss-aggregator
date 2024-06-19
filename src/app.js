@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
-import { subscribe, render } from './view.js';
+import render from './view.js';
 import i18next from 'i18next';
 import ru from './locales/ru.js';
 
@@ -67,7 +67,6 @@ elements.form.addEventListener('submit', (e) => {
           .notOneOf(watchedState.form.addedLinks, i18Instance.t('errors.addedLink')); // the same
 
 
-
           schema.validate(value) // when promis resolve
           .then(() => { // in case - validation
             watchedState.form.valid = 'valid';
@@ -89,37 +88,5 @@ elements.form.addEventListener('submit', (e) => {
       });
     });
 };
-
-
-
-// const validateUrl = async (url) => {
-//   try {
-//     await Yup.string().trim().required().url().notOneOf(watchedState.feeds).validate(url);
-//     return true
-//   } catch {
-//     return false
-//   }
-// };
-
-// export const onSubmit = async (e) => {
-//   e.preventDefault();
-//   const formData = new FormData(e.target)
-//   // console.log(formData.get('url'))
-//   const url = formData.get('url')
-//   const isValid = await validateUrl(url);
-//   if (isValid) {
-//     watchedState.form.isError = false;
-//     watchedState.form.message = 'RSS успешно загружен';
-//     watchedState.feeds.push(url);
-//     //отправляем запрос на url
-//   } else {
-//     watchedState.form.isError = true;
-//     watchedState.form.message = 'Ссылка должна быть валидным URL'
-//   }
-// }
-
-// export const app = () => {
-//   subscribe();
-// }
 
 export default app;
