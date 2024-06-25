@@ -3,6 +3,30 @@ import onChange from 'on-change';
 import render from './view.js';
 import i18next from 'i18next';
 import ru from './locales/ru.js';
+import axios from 'axios';
+import parser from './parser.js';
+
+  //get response 
+  const getAxiosResponse = (url) => {
+    return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
+      .then((response) => {
+        if (response.status === 200) {
+          return response.data.contents;
+        } else {
+          console.error('Error getting data');
+          return null;
+        }
+      })
+      .catch((error) => {
+        console.error('Error getting data', error);
+        return null;
+      });
+  };
+
+  // const url = 'https://ru.hexlet.io/lessons.rss';
+
+  // getAxiosResponse(url)
+
 
 const app = () => {
  // step 1: get DOM elements
@@ -11,6 +35,8 @@ const app = () => {
   buttonSubmit: document.querySelector('button[type="submit"]'),
   input: document.querySelector('#url-input'),
   feedback: document.querySelector('.feedback'), // a message at the bottom of input
+  posts: document.querySelector('.posts'),
+  feeds: document.querySelector('.feeds'),
 };
 
   // step 2: init state
@@ -21,6 +47,7 @@ const app = () => {
       valid: 'valid',
       addedLinks: [], // save already addded links
       errors: [],
+      feeds: [],
     },
   };
 
@@ -32,6 +59,7 @@ const app = () => {
 //   feeds: [],
 // };
 
+// step 3: init i18Next
 const i18Instance = i18next.createInstance();
 const defaultLang = 'ru';
 i18Instance.init({
@@ -52,6 +80,7 @@ i18Instance.init({
       },
     });
 
+    // step 5: watch for state
     const watchedState = onChange(initialState, render(initialState, elements, i18Instance));
 
 // const watchedState = onChange(state, render)
@@ -60,6 +89,7 @@ elements.form.addEventListener('submit', (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
   const value = formData.get('url'); // get value in input
+
 
   const schema = yup.string()
           .trim()
