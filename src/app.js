@@ -10,18 +10,18 @@ import { uniqueId } from 'lodash'
   //get response 
   const getAxiosResponse = (url) => {
     return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
-      .then((response) => {
-        if (response.data.status === 200) {
-          return response.data.contents;
-        } else {
-          console.error('Error getting data');
-          return null;
-        }
-      })
-      .catch((error) => {
-        console.error('Error getting data', error);
-        return null;
-      });
+      // .then((response) => {
+      //   if (response.data.status === 200) {
+      //     return response.data.contents;
+      //   } else {
+      //     console.error('Error getting data');
+      //     return null;
+      //   }
+      // })
+      // .catch((error) => {
+      //   console.error('Error getting data', error);
+      //   return null;
+      // });
   };
 
   // const url = 'https://ru.hexlet.io/lessons.rss';
