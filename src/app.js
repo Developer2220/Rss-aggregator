@@ -5,6 +5,7 @@ import i18next from 'i18next';
 import ru from './locales/ru.js';
 import axios from 'axios';
 import parser from './parser.js';
+import { uniqueId } from 'lodash' 
 
   //get response 
   const getAxiosResponse = (url) => {
@@ -34,7 +35,7 @@ import parser from './parser.js';
   const addPosts = (feedId, posts, watchedState) => {
     const result = posts.map((post) => ({
       feedId,
-      id: getId(),
+      // id: getId(),
       title: post.title,
       description: post.description,
       link: post.link,
@@ -114,9 +115,10 @@ elements.form.addEventListener('submit', (e) => {
           .then((url) => getAxiosResponse(url)) // return xmlDocument
           .then((responce)=> parser(responce)) // return {feed, posts}
           .then ((parsedRSS) => {
-            const feedId = getId();
             const title = parsedRSS.feed.channelTitle;
             const description = parsedRSS.feed.channelDescription;
+            const feedId = uniqueId();
+
             addFeeds(feedId, title, description, watchedState)
             addPosts(feedId,parsedRSS.posts, watchedState);
           } )
