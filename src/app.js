@@ -11,7 +11,7 @@ import { uniqueId } from 'lodash'
   const getAxiosResponse = (url) => {
     return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
       .then((response) => {
-        if (response.status === 200) {
+        if (response.data.status === 200) {
           return response.data.contents;
         } else {
           console.error('Error getting data');
