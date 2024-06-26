@@ -8,8 +8,8 @@ import parser from './parser.js';
 import { uniqueId } from 'lodash' 
 
   //get response 
-  const getAxiosResponse = (url) => {
-    return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
+  // const getAxiosResponse = (url) => {
+  //   return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
       // .then((response) => {
       //   if (response.data.status === 200) {
       //     return response.data.contents;
@@ -22,7 +22,8 @@ import { uniqueId } from 'lodash'
       //   console.error('Error getting data', error);
       //   return null;
       // });
-  };
+  // };
+  const getAxiosResponse = (link) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`);
 
   // const url = 'https://ru.hexlet.io/lessons.rss';
 
