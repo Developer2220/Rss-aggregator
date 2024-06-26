@@ -25,7 +25,22 @@ import parser from './parser.js';
 
   // const url = 'https://ru.hexlet.io/lessons.rss';
 
-  // getAxiosResponse(url)
+  // getAxiosResponse(url).then((res)=> console.log(res))
+
+  const addFeeds = (id, title, description, watchedState) => {
+    watchedState.feeds.push({ id, title, description });
+  };
+
+  const addPosts = (feedId, posts, watchedState) => {
+    const result = posts.map((post) => ({
+      feedId,
+      id: getId(),
+      title: post.title,
+      description: post.description,
+      link: post.link,
+    }));
+    watchedState.posts = result.concat(watchedState.posts);
+  };
 
 
 const app = () => {
@@ -90,14 +105,22 @@ elements.form.addEventListener('submit', (e) => {
   const formData = new FormData(e.target);
   const value = formData.get('url'); // get value in input
 
-
-  const schema = yup.string()
+  yup
+          .string()
           .trim()
           .url(i18Instance.t('errors.invalidLink')) // instead of message of error - message from locales/ru.js
-          .notOneOf(watchedState.form.addedLinks, i18Instance.t('errors.addedLink')); // the same
+          .notOneOf(watchedState.form.addedLinks, i18Instance.t('errors.addedLink')) // the same
+          .validate(value) // check validation
+          .then((url) => getAxiosResponse(url)) // return xmlDocument
+          .then((responce)=> parser(responce)) // return {feed, posts}
+          .then ((parsedRSS) => {
+            const feedId = getId();
+            const title = parsedRSS.feed.channelTitle;
+            const description = parsedRSS.feed.channelDescription;
+            addFeeds(feedId, title, description, watchedState)
+            addPosts(feedId,parsedRSS.posts, watchedState);
+          } )
 
-
-          schema.validate(value) // when promis resolve
           .then(() => { // in case - validation
             watchedState.form.valid = 'valid';
             watchedState.form.status = 'sending';

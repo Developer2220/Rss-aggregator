@@ -32,4 +32,43 @@ const render = (state, elements, i18Instance) => (path, value) => {
     }
 }
 
+const makeContainer = (title, state, elements, i18Instance) => {
+    elements[title].textContent = '';
+
+    const card = document.createElement('div'); 
+    card.classList.add('card', 'border-0');
+    const cardBody = document.createElement('div')
+    cardBody.classList.add('card-body');
+    const cardTitle = document.createElement('h2')
+    cardTitle.classList.add( 'card-title', 'h4');
+    cardTitle.textContent = i18Instance.t(title);
+    cardBody.append(cardTitle);
+    card.append(cardBody)
+    elements[title].append(card);
+    if (title === 'feeds') {
+        const listGroup = document.createElement('ul')
+        listGroup.classList.add('list-group', 'border-0', 'rounded-0');
+        state.feeds.forEach((feed) => {
+            const listGroupItem = document.createElement('li')
+            listGroupItem.classList.add('list-group-item', 'border-0', 'border-end-0');
+            const h3 = document.createElement('h3');
+            h3.classList.add('h6', 'm-0')
+
+            const p = document.createElement('p');
+            p.classList.add('m-0', 'small', 'text-black-50')
+            p.textContent = feed.description;
+            listGroupItem.append(h3, p)
+            listGroup.append(listGroupItem);
+        })
+        card.append(listGroup)
+        // if (title === 'posts') {
+            
+        // }
+            
+    
+    }
+
+   
+}
+
 export default render;
