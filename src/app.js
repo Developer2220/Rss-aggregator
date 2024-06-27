@@ -5,7 +5,7 @@ import i18next from 'i18next';
 import ru from './locales/ru.js';
 import axios from 'axios';
 import parser from './parser.js';
-import { uniqueId } from 'lodash' 
+import _ from 'lodash' 
 
   //get response 
   // const getAxiosResponse = (url) => {
@@ -28,21 +28,6 @@ import { uniqueId } from 'lodash'
   // const url = 'https://ru.hexlet.io/lessons.rss';
 
   // getAxiosResponse(url).then((res)=> console.log(res))
-
-  const addFeeds = (id, title, description, watchedState) => {
-    watchedState.feeds.push({ id, title, description });
-  };
-
-  const addPosts = (feedId, posts, watchedState) => {
-    const result = posts.map((post) => ({
-      feedId,
-      // id: getId(),
-      title: post.title,
-      description: post.description,
-      link: post.link,
-    }));
-    watchedState.posts = result.concat(watchedState.posts);
-  };
 
 
 const app = () => {
@@ -99,7 +84,21 @@ i18Instance.init({
 
     // step 5: watch for state
     const watchedState = onChange(initialState, render(initialState, elements, i18Instance));
-
+console.log(watchedState)
+    const addFeeds = (id, title, description, watchedState) => {
+      watchedState.form.feeds.push({ id, title, description });
+    };
+  
+    const addPosts = (feedId, posts, watchedState) => {
+      const result = posts.map((post) => ({
+        feedId,
+        // id: getId(),
+        title: post.title,
+        description: post.description,
+        link: post.link,
+      }));
+      watchedState.posts = result.concat(watchedState.posts);
+    };
 // const watchedState = onChange(state, render)
 
 elements.form.addEventListener('submit', (e) => {
@@ -114,15 +113,20 @@ elements.form.addEventListener('submit', (e) => {
           .notOneOf(watchedState.form.addedLinks, i18Instance.t('errors.addedLink')) // the same
           .validate(value) // check validation
           .then((url) => getAxiosResponse(url)) // return xmlDocument
-          .then((responce)=> parser(responce)) // return {feed, posts}
+          .then((responce)=> parser(responce.data.contents)) // return {feed, posts}
           .then ((parsedRSS) => {
+            // console.log(parsedRSS);
             const title = parsedRSS.feed.channelTitle;
+            // console.log(title)
             const description = parsedRSS.feed.channelDescription;
-            const feedId = uniqueId();
+            // console.log(description)
+            const feedId = _.uniqueId();
+            // console.log(feedId)
 
+            // watchedState.form.feeds.push({ feedId, title, description });
             addFeeds(feedId, title, description, watchedState)
-            addPosts(feedId,parsedRSS.posts, watchedState);
-          } )
+            // addPosts(feedId,parsedRSS.posts, watchedState);
+          })
 
           .then(() => { // in case - validation
             watchedState.form.valid = 'valid';
@@ -144,5 +148,6 @@ elements.form.addEventListener('submit', (e) => {
       });
     });
 };
+
 
 export default app;
