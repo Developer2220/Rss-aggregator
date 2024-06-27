@@ -50,6 +50,7 @@ const app = () => {
       addedLinks: [], // save already addded links
       errors: [],
       feeds: [],
+      posts: [], 
     },
   };
 
@@ -85,6 +86,7 @@ i18Instance.init({
     // step 5: watch for state
     const watchedState = onChange(initialState, render(initialState, elements, i18Instance));
 console.log(watchedState)
+
     const addFeeds = (id, title, description, watchedState) => {
       watchedState.form.feeds.push({ id, title, description });
     };
@@ -92,12 +94,12 @@ console.log(watchedState)
     const addPosts = (feedId, posts, watchedState) => {
       const result = posts.map((post) => ({
         feedId,
-        // id: getId(),
+        id: _.uniqueId(),
         title: post.title,
         description: post.description,
         link: post.link,
       }));
-      watchedState.posts = result.concat(watchedState.posts);
+      watchedState.form.posts = result.concat(watchedState.form.posts);
     };
 // const watchedState = onChange(state, render)
 
@@ -115,17 +117,18 @@ elements.form.addEventListener('submit', (e) => {
           .then((url) => getAxiosResponse(url)) // return xmlDocument
           .then((responce)=> parser(responce.data.contents)) // return {feed, posts}
           .then ((parsedRSS) => {
-            // console.log(parsedRSS);
             const title = parsedRSS.feed.channelTitle;
             // console.log(title)
             const description = parsedRSS.feed.channelDescription;
             // console.log(description)
             const feedId = _.uniqueId();
+            console.log('feedId', feedId )
             // console.log(feedId)
-
+            
             // watchedState.form.feeds.push({ feedId, title, description });
             addFeeds(feedId, title, description, watchedState)
-            // addPosts(feedId,parsedRSS.posts, watchedState);
+            addPosts(feedId,parsedRSS.posts, watchedState);
+            console.log('parsedRSS', parsedRSS);
           })
 
           .then(() => { // in case - validation

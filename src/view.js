@@ -48,10 +48,13 @@ const makeContainer = (elements, state, title,  i18Instance) => {
     cardTitle.textContent = i18Instance.t(title);
     cardBody.append(cardTitle);
     card.append(cardBody)
-    elements[title].append(card);
+    // elements[title].append(card);
+    
+    const listGroup = document.createElement('ul')
+    listGroup.classList.add('list-group', 'border-0', 'rounded-0');
+    
     if (title === 'feeds') {
-        const listGroup = document.createElement('ul')
-        listGroup.classList.add('list-group', 'border-0', 'rounded-0');
+        
         state.form.feeds.forEach((feed) => {
             const listGroupItem = document.createElement('li')
             listGroupItem.classList.add('list-group-item', 'border-0', 'border-end-0');
@@ -63,16 +66,46 @@ const makeContainer = (elements, state, title,  i18Instance) => {
             p.textContent = feed.description;
             listGroupItem.append(h3, p)
             listGroup.append(listGroupItem);
+            // card.append(listGroup)
         })
-        card.append(listGroup)
-        // if (title === 'posts') {
+    }
+    if (title === 'posts') {
+        // const listGroup = document.createElement('ul')
+        // listGroup.classList.add('list-group', 'border-0', 'rounded-0');
+        state.form.posts.forEach((post) => {
+            const listGroupItem = document.createElement('li')
+            listGroupItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
             
-        // }
+            const a = document.createElement('a');
+            a.classList.add('fw-bold')
+            a.setAttribute('data-id', `${post.id}`)
+            a.setAttribute('target', '_blank')
+            a.setAttribute('href', `${post.link}`)
+            a.setAttribute('rel', 'noopener noreferrer')
+            a.textContent = post.title
+
+            const button = document.createElement('button');
+            button.classList.add('btn', 'btn-outline-primary', 'btn-sm')
+            button.setAttribute('data-id', `${post.id}`)
+            button.setAttribute('data-bs-toggle', 'modal')
+            button.setAttribute('data-bs-target', '#modal')
+            button.textContent = 'Просмотр'
+            listGroupItem.append(a, button)
+            listGroup.append(listGroupItem);
+            // card.append(listGroup)
+            
+        })
+        // const listGroup = document.createElement('ul')
+        // card.append(listGroup)
+        
+    }
+    card.append(listGroup);
+    elements[title].append(card);
             
     
     }
 
    
-}
+// }
 
 export default render;
