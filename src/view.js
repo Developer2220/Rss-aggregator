@@ -30,6 +30,10 @@ const render = (state, elements, i18Instance) => (path, value) => {
         case 'form.feeds': {
             makeContainer(elements, state, 'feeds', i18Instance);
             break
+            }    
+        case 'form.posts': {
+            makeContainer(elements, state, 'posts', i18Instance);
+            break
             }
             default:
             break;
@@ -48,7 +52,6 @@ const makeContainer = (elements, state, title,  i18Instance) => {
     cardTitle.textContent = i18Instance.t(title);
     cardBody.append(cardTitle);
     card.append(cardBody)
-    // elements[title].append(card);
     
     const listGroup = document.createElement('ul')
     listGroup.classList.add('list-group', 'border-0', 'rounded-0');
@@ -66,12 +69,9 @@ const makeContainer = (elements, state, title,  i18Instance) => {
             p.textContent = feed.description;
             listGroupItem.append(h3, p)
             listGroup.append(listGroupItem);
-            // card.append(listGroup)
         })
     }
     if (title === 'posts') {
-        // const listGroup = document.createElement('ul')
-        // listGroup.classList.add('list-group', 'border-0', 'rounded-0');
         state.form.posts.forEach((post) => {
             const listGroupItem = document.createElement('li')
             listGroupItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
@@ -92,20 +92,11 @@ const makeContainer = (elements, state, title,  i18Instance) => {
             button.textContent = 'Просмотр'
             listGroupItem.append(a, button)
             listGroup.append(listGroupItem);
-            // card.append(listGroup)
-            
         })
-        // const listGroup = document.createElement('ul')
-        // card.append(listGroup)
-        
     }
     card.append(listGroup);
     elements[title].append(card);
-            
-    
-    }
+}
 
-   
-// }
 
 export default render;

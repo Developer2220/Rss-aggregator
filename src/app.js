@@ -128,7 +128,7 @@ elements.form.addEventListener('submit', (e) => {
             // watchedState.form.feeds.push({ feedId, title, description });
             addFeeds(feedId, title, description, watchedState)
             addPosts(feedId,parsedRSS.posts, watchedState);
-            console.log('parsedRSS', parsedRSS);
+            // console.log('parsedRSS', parsedRSS);
           })
 
           .then(() => { // in case - validation
