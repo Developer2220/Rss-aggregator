@@ -89,7 +89,7 @@ const makeContainer = (elements, state, title,  i18Instance) => {
             button.setAttribute('data-id', `${post.id}`)
             button.setAttribute('data-bs-toggle', 'modal')
             button.setAttribute('data-bs-target', '#modal')
-            button.textContent = 'Просмотр'
+            button.textContent = i18Instance.t('show')
             listGroupItem.append(a, button)
             listGroup.append(listGroupItem);
         })
@@ -98,5 +98,16 @@ const makeContainer = (elements, state, title,  i18Instance) => {
     elements[title].append(card);
 }
 
+// const renderModalWindow = (elements, state, value) => {
+//     elements[value].textContent = '';
+
+//     const modelTitle = document.querySelector('.modal-title');
+//     const modalBody = document.querySelector('.modal-body');
+
+//     state.form.posts.forEach((post) => {
+//         modelTitle.textContent = post.title;
+//         modalBody.textContent = post.description;
+//     }) 
+// }
 
 export default render;

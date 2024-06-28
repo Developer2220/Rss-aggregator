@@ -7,6 +7,7 @@ export default {
         notRss: 'Ресурс не содержит валидный RSS',
       },
       feeds: 'Фиды',
-      posts: 'Посты'
+      posts: 'Посты',
+      show: 'Просмотр'
     },
   };

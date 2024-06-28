@@ -85,7 +85,7 @@ i18Instance.init({
 
     // step 5: watch for state
     const watchedState = onChange(initialState, render(initialState, elements, i18Instance));
-console.log(watchedState)
+console.log('watchedState', watchedState)
 
     const addFeeds = (id, title, description, watchedState) => {
       watchedState.form.feeds.push({ id, title, description });
@@ -122,13 +122,13 @@ elements.form.addEventListener('submit', (e) => {
             const description = parsedRSS.feed.channelDescription;
             // console.log(description)
             const feedId = _.uniqueId();
-            console.log('feedId', feedId )
+            // console.log('feedId', feedId )
             // console.log(feedId)
             
             // watchedState.form.feeds.push({ feedId, title, description });
             addFeeds(feedId, title, description, watchedState)
             addPosts(feedId,parsedRSS.posts, watchedState);
-            // console.log('parsedRSS', parsedRSS);
+            console.log('parsedRSS', parsedRSS);
           })
 
           .then(() => { // in case - validation
