@@ -29,6 +29,73 @@ import _ from 'lodash'
 
   // getAxiosResponse(url).then((res)=> console.log(res))
 
+  const updatePosts = (state) => {
+    const existPosts = state.form.posts;
+    const oldPosts = _.cloneDeep(existPosts);
+    console.log('oldPosts', oldPosts);
+
+    const url = state.form.field;
+    console.log('url', url);
+
+    // Начало запроса данных
+    getAxiosResponse(url)
+      .then((data) => {
+        console.log('data', data); // Здесь data должен быть результатом ответа от Axios
+        return parser(data.data.contents); // Возвращаем данные, чтобы они пошли дальше по цепочке
+      })
+      .then((newData) => {
+        console.log('newData', newData); // Здесь newData должен быть результатом парсинга данных
+
+        const newPosts = newData.posts;
+        console.log('newPosts', newPosts);
+
+        newPosts.forEach((newPost) => {
+          const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+          console.log('foundPosts', foundPosts);
+          console.log('state.form.posts before push', state.form.posts);
+
+          if (foundPosts) {
+            state.form.posts.push(newPost); // Исправлено: добавляем сам новый пост
+          }
+
+          console.log('state.form.posts after push', state.form.posts);
+        });
+      })
+      .catch((error) => {
+        console.error('Error:', error.message);
+        state.form.error.push(error.message);
+      })
+      .then(() => {
+        setTimeout(() => updatePosts(state), 5000);
+      });
+};
+
+//   const updatePosts = (state) => {
+//     const existPosts = state.form.posts;
+//     const oldPosts = _.cloneDeep(existPosts);
+//     const url = state.form.field;
+
+//     getAxiosResponse(url)
+//       .then((data) => parser(data))
+//       .then((newData) => {
+//         const newPosts = newData.posts;
+
+//         newPosts.forEach((newPost) => {  // Изменено с `map` на `forEach`
+//           const isNewPost = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+//           console.log('isNewPost', isNewPost)
+//           console.log('state.form.posts', state.form.posts)
+//           if (isNewPost) {
+//             state.form.posts.push(newPost); // Исправлено: добавляем сам новый пост
+//           }
+//         });
+//       })
+//       .catch((error) => {
+//         state.form.error.push(error.message);
+//       })
+//       .then(() => {
+//         setTimeout(() => updatePosts(state), 5000);
+//       });
+// };
 
 const app = () => {
  // step 1: get DOM elements
@@ -130,6 +197,7 @@ elements.form.addEventListener('submit', (e) => {
             addPosts(feedId,parsedRSS.posts, watchedState);
             console.log('parsedRSS', parsedRSS);
           })
+          // .then(() => updatePosts(watchedState))
 
           .then(() => { // in case - validation
             watchedState.form.valid = 'valid';
@@ -139,6 +207,7 @@ elements.form.addEventListener('submit', (e) => {
             watchedState.form.addedLinks.push(value);
             watchedState.form.status = 'sent';
             watchedState.form.field = value;
+            updatePosts(watchedState)
           })
           .catch((error) => { // in case no-valid (if error is on during 'sending' or smth else)
             watchedState.form.valid = 'invalid';
