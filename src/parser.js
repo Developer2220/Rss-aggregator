@@ -8,7 +8,7 @@ export default (data) => {
     const feed = { channelTitle, channelDescription };
     
     const itemElements = channel.getElementsByTagName('item');
-
+    
     const posts = [...itemElements].map((item) => {
       const title = item.querySelector('title').textContent;
       const description = item.querySelector('description').textContent;

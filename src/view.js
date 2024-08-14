@@ -33,6 +33,7 @@ const render = (state, elements, i18Instance) => (path, value) => {
             }    
         case 'form.posts': {
             makeContainer(elements, state, 'posts', i18Instance);
+            // attachPreviewHandlers(state);
             break
             }
             default:
@@ -90,6 +91,14 @@ const makeContainer = (elements, state, title,  i18Instance) => {
             button.setAttribute('data-bs-toggle', 'modal')
             button.setAttribute('data-bs-target', '#modal')
             button.textContent = i18Instance.t('show')
+
+            button.addEventListener('click', () => {
+                const modalTitle = document.querySelector('.modal-title');
+                const modalBody = document.querySelector('.modal-body');
+                modalTitle.textContent = post.title;
+                modalBody.textContent = post.description;
+            });
+
             listGroupItem.append(a, button)
             listGroup.append(listGroupItem);
         })
@@ -109,5 +118,21 @@ const makeContainer = (elements, state, title,  i18Instance) => {
 //         modalBody.textContent = post.description;
 //     }) 
 // }
+
+// const attachPreviewHandlers = (state) => {
+//     const buttons = document.querySelectorAll('button[data-bs-target="#modal"]');
+//     buttons.forEach((button) => {
+//         button.addEventListener('click', (e) => {
+//             const postId = e.target.getAttribute('data-id');
+//             const post = state.form.posts.find(p => p.id === postId);
+//             const modalTitle = document.querySelector('modal-title');
+//             const modalBody = document.getElementById('modal-body');
+
+//             modalTitle.textContent = post.title;
+//             modalBody.textContent = post.description;
+//         });
+//     });
+// }
+
 
 export default render;

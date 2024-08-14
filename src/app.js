@@ -32,38 +32,38 @@ import _ from 'lodash'
   const updatePosts = (state) => {
     const existPosts = state.form.posts;
     const oldPosts = _.cloneDeep(existPosts);
-    console.log('oldPosts', oldPosts);
+    // console.log('oldPosts', oldPosts);
 
     const url = state.form.field;
-    console.log('url', url);
+    // console.log('url', url);
 
     // Начало запроса данных
     getAxiosResponse(url)
       .then((data) => {
-        console.log('data', data); // Здесь data должен быть результатом ответа от Axios
+        // console.log('data', data); // Здесь data должен быть результатом ответа от Axios
         return parser(data.data.contents); // Возвращаем данные, чтобы они пошли дальше по цепочке
       })
       .then((newData) => {
-        console.log('newData', newData); // Здесь newData должен быть результатом парсинга данных
+        // console.log('newData', newData); // Здесь newData должен быть результатом парсинга данных
 
         const newPosts = newData.posts;
-        console.log('newPosts', newPosts);
+        // console.log('newPosts', newPosts);
 
         newPosts.forEach((newPost) => {
           const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
-          console.log('foundPosts', foundPosts);
-          console.log('state.form.posts before push', state.form.posts);
+          // console.log('foundPosts', foundPosts);
+          // console.log('state.form.posts before push', state.form.posts);
 
           if (foundPosts) {
             state.form.posts.push(newPost); // Исправлено: добавляем сам новый пост
           }
 
-          console.log('state.form.posts after push', state.form.posts);
+          // console.log('state.form.posts after push', state.form.posts);
         });
       })
       .catch((error) => {
-        console.error('Error:', error.message);
-        state.form.error.push(error.message);
+        // console.error('Error:', error.message);
+        state.form.errors.push(error.message);
       })
       .then(() => {
         setTimeout(() => updatePosts(state), 5000);
@@ -118,6 +118,7 @@ const app = () => {
       errors: [],
       feeds: [],
       posts: [], 
+      readPost: [], // save already read posts
     },
   };
 
