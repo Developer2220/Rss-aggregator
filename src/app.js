@@ -118,7 +118,7 @@ const app = () => {
       errors: [],
       feeds: [],
       posts: [], 
-      readPost: [], // save already read posts
+      readPosts: [], // save already read posts
     },
   };
 

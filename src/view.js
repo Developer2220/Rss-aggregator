@@ -78,7 +78,11 @@ const makeContainer = (elements, state, title,  i18Instance) => {
             listGroupItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
             
             const a = document.createElement('a');
-            a.classList.add('fw-bold')
+            // Проверка, прочитан ли пост
+            const isRead = state.form.readPosts.includes(post.id);
+            a.classList.add(isRead ? 'fw-normal' : 'fw-bold');
+
+            // a.classList.add('fw-bold')
             a.setAttribute('data-id', `${post.id}`)
             a.setAttribute('target', '_blank')
             a.setAttribute('href', `${post.link}`)
@@ -97,6 +101,13 @@ const makeContainer = (elements, state, title,  i18Instance) => {
                 const modalBody = document.querySelector('.modal-body');
                 modalTitle.textContent = post.title;
                 modalBody.textContent = post.description;
+                
+                 // Пометить пост как прочитанный
+                 if (!state.form.readPosts.includes(post.id)) {
+                    state.form.readPosts.push(post.id);
+                    a.classList.replace('fw-bold', 'fw-normal');
+                }
+
             });
 
             listGroupItem.append(a, button)
