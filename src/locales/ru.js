@@ -5,9 +5,11 @@ export default {
         invalidLink: 'Ссылка должна быть валидным URL',
         addedLink: 'RSS уже существует',
         notRss: 'Ресурс не содержит валидный RSS',
+        notNetwork: 'Ошибка сети'
       },
       feeds: 'Фиды',
       posts: 'Посты',
-      show: 'Просмотр'
+      show: 'Просмотр',
+
     },
   };

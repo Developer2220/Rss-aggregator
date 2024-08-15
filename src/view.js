@@ -6,7 +6,6 @@ const errorHandler = (elem, err) => {
     elements.feedback.textContent = err;
     console.log('err in view', err)
     elements.input.focus();
-    elements.form.reset();
 }
 
 const finishErrorHandler = (elem, i18Instance) => {
