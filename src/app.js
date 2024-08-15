@@ -213,6 +213,7 @@ elements.form.addEventListener('submit', (e) => {
           .catch((error) => { // in case no-valid (if error is on during 'sending' or smth else)
             watchedState.form.valid = 'invalid';
             watchedState.form.errors = error.message; // push error
+            console.log('error.message1', error.message)
             watchedState.form.status = 'failed';
           })
           .finally(() => {
