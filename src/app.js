@@ -7,6 +7,7 @@ import axios from 'axios';
 import parser from './parser.js';
 import _ from 'lodash' 
 
+
   //get response 
   // const getAxiosResponse = (url) => {
   //   return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
@@ -63,7 +64,7 @@ import _ from 'lodash'
       })
       .catch((error) => {
         // console.error('Error:', error.message);
-        state.form.errors.push(error.message);
+        state.form.errors = error.message;
       })
       .then(() => {
         setTimeout(() => updatePosts(state), 5000);
@@ -97,6 +98,26 @@ import _ from 'lodash'
 //       });
 // };
 
+// const isValidRSS = (rssData) => {
+//   try {
+//     return parser(rssData).querySelector('rss') !== null;
+//   } catch (e) {
+//     return false;
+//   }
+// };
+
+const isValidRSS = (rssData) => {
+  try {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(rssData, "text/xml");
+    return xmlDoc.querySelector('rss') !== null;
+  } catch (e) {
+    return false;
+  }
+};
+
+
+
 const app = () => {
  // step 1: get DOM elements
  const elements = {
@@ -115,7 +136,7 @@ const app = () => {
       status: 'filling',
       valid: 'valid',
       addedLinks: [], // save already addded links
-      errors: [],
+      errors: null,
       feeds: [],
       posts: [], 
       readPosts: [], // save already read posts
@@ -173,6 +194,13 @@ console.log('watchedState', watchedState)
 
 elements.form.addEventListener('submit', (e) => {
   e.preventDefault();
+
+  if (!navigator.onLine) {
+    watchedState.form.errors = i18Instance.t('errors.notNetwork');
+    watchedState.form.status = 'failed';
+    return;
+  }
+
   const formData = new FormData(e.target);
   const value = formData.get('url'); // get value in input
 
@@ -183,7 +211,32 @@ elements.form.addEventListener('submit', (e) => {
           .notOneOf(watchedState.form.addedLinks, i18Instance.t('errors.addedLink')) // the same
           .validate(value) // check validation
           .then((url) => getAxiosResponse(url)) // return xmlDocument
-          .then((responce)=> parser(responce.data.contents)) // return {feed, posts}
+          // .then((responce)=> parser(responce.data.contents)) // return {feed, posts}
+          
+          .then((response) => {
+            console.log('response', response)
+            if (!isValidRSS(response.data.contents)) { // Проверка на валидность RSS
+              throw new Error(i18Instance.t('errors.notRss')); // Если RSS не валиден, выбрасываем ошибку
+            }
+            return parser(response.data.contents); // Парсим RSS, return {feed, posts}
+          })
+
+
+          // .then((response) => {
+          //   console.log('response:', response.status)
+          //   // if (response.status !== 200) { // Проверка на статус ответа
+          //   if (response.status === 0) { // Проверка на статус ответа
+          //     throw new Error(i18Instance.t('errors.notNetwork')); // Если статус не 200, выбрасываем ошибку
+          //   }
+          //   return response.data.contents; // Вернуть данные из ответа
+          // })
+          // .then((data) => {
+          //   if (!isValidRSS(data)) { // Проверка на валидность RSS
+          //     throw new Error(i18Instance.t('errors.notRss')); // Если RSS не валиден, выбрасываем ошибку
+          //   }
+          //   return parser(data); // Парсим RSS
+          // })
+
           .then ((parsedRSS) => {
             const title = parsedRSS.feed.channelTitle;
             // console.log(title)
@@ -213,9 +266,23 @@ elements.form.addEventListener('submit', (e) => {
           .catch((error) => { // in case no-valid (if error is on during 'sending' or smth else)
             watchedState.form.valid = 'invalid';
             watchedState.form.errors = error.message; // push error
-            console.log('error.message1', error.message)
+            console.log('error.message', error.message)
             watchedState.form.status = 'failed';
           })
+
+          // .catch((error) => {
+          //   watchedState.form.valid = 'invalid';
+          //   console.log('error.message', error.message)
+          //   if (error.message === 'Network Error') {
+          //     watchedState.form.errors = i18Instance.t('errors.notNetwork');
+          //   // } else if (error.message === 'notRss') {
+          //   //   watchedState.form.errors = i18Instance.t('errors.notRss');
+          //   } else {
+          //     watchedState.form.errors = error.message; // push last error
+          //   }
+          //   watchedState.form.status = 'failed';
+          // })
+
           .finally(() => {
             watchedState.form.status = 'filling';
           });
