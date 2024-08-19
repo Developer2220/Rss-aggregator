@@ -1,74 +1,73 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
-import render from './view.js';
 import i18next from 'i18next';
-import ru from './locales/ru.js';
 import axios from 'axios';
+import _ from 'lodash';
+import render from './view.js';
+import ru from './locales/ru.js';
 import parser from './parser.js';
-import _ from 'lodash' 
 
+// get response
+// const getAxiosResponse = (url) => {
+//   return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
+// .then((response) => {
+//   if (response.data.status === 200) {
+//     return response.data.contents;
+//   } else {
+//     console.error('Error getting data');
+//     return null;
+//   }
+// })
+// .catch((error) => {
+//   console.error('Error getting data', error);
+//   return null;
+// });
+// };
+const getAxiosResponse = (link) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`);
 
-  //get response 
-  // const getAxiosResponse = (url) => {
-  //   return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
-      // .then((response) => {
-      //   if (response.data.status === 200) {
-      //     return response.data.contents;
-      //   } else {
-      //     console.error('Error getting data');
-      //     return null;
-      //   }
-      // })
-      // .catch((error) => {
-      //   console.error('Error getting data', error);
-      //   return null;
-      // });
-  // };
-  const getAxiosResponse = (link) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`);
+// const url = 'https://ru.hexlet.io/lessons.rss';
 
-  // const url = 'https://ru.hexlet.io/lessons.rss';
+// getAxiosResponse(url).then((res)=> console.log(res))
 
-  // getAxiosResponse(url).then((res)=> console.log(res))
+const updatePosts = (state) => {
+  const existPosts = state.form.posts;
+  const oldPosts = _.cloneDeep(existPosts);
+  // console.log('oldPosts', oldPosts);
 
-  const updatePosts = (state) => {
-    const existPosts = state.form.posts;
-    const oldPosts = _.cloneDeep(existPosts);
-    // console.log('oldPosts', oldPosts);
+  const url = state.form.field;
+  // console.log('url', url);
 
-    const url = state.form.field;
-    // console.log('url', url);
+  // Начало запроса данных
+  getAxiosResponse(url)
+    .then((data) => {
+    // console.log('data', data); // Здесь data должен быть результатом ответа от Axios
+      parser(data.data.contents);
+    }) // Возвращаем данные, чтобы они пошли дальше по цепочке
+    .then((newData) => {
+      // console.log('newData', newData); // Здесь newData должен быть результатом парсинга данных
 
-    // Начало запроса данных
-    getAxiosResponse(url)
-      .then((data) => {
-        // console.log('data', data); // Здесь data должен быть результатом ответа от Axios
-        return parser(data.data.contents); // Возвращаем данные, чтобы они пошли дальше по цепочке
-      })
-      .then((newData) => {
-        // console.log('newData', newData); // Здесь newData должен быть результатом парсинга данных
+      const newPosts = newData.posts;
+      // console.log('newPosts', newPosts);
 
-        const newPosts = newData.posts;
-        // console.log('newPosts', newPosts);
+      newPosts.forEach((newPost) => {
+        const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+        // console.log('foundPosts', foundPosts);
+        // console.log('state.form.posts before push', state.form.posts);
 
-        newPosts.forEach((newPost) => {
-          const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
-          // console.log('foundPosts', foundPosts);
-          // console.log('state.form.posts before push', state.form.posts);
+        if (foundPosts) {
+          state.form.posts.push(newPost); // Исправлено: добавляем сам новый пост
+        }
 
-          if (foundPosts) {
-            state.form.posts.push(newPost); // Исправлено: добавляем сам новый пост
-          }
-
-          // console.log('state.form.posts after push', state.form.posts);
-        });
-      })
-      .catch((error) => {
-        // console.error('Error:', error.message);
-        state.form.errors = error.message;
-      })
-      .then(() => {
-        setTimeout(() => updatePosts(state), 5000);
+        // console.log('state.form.posts after push', state.form.posts);
       });
+    })
+    .catch((error) => {
+      // console.error('Error:', error.message);
+      state.form.errors = error.message;
+    })
+    .then(() => {
+      setTimeout(() => updatePosts(state), 5000);
+    });
 };
 
 //   const updatePosts = (state) => {
@@ -108,26 +107,24 @@ import _ from 'lodash'
 
 const isValidRSS = (rssData) => {
   try {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(rssData, "text/xml");
+    const parserData = new DOMParser();
+    const xmlDoc = parserData.parseFromString(rssData, 'text/xml');
     return xmlDoc.querySelector('rss') !== null;
   } catch (e) {
     return false;
   }
 };
 
-
-
 const app = () => {
- // step 1: get DOM elements
- const elements = {
-  form: document.querySelector('form'),
-  buttonSubmit: document.querySelector('button[type="submit"]'),
-  input: document.querySelector('#url-input'),
-  feedback: document.querySelector('.feedback'), // a message at the bottom of input
-  posts: document.querySelector('.posts'),
-  feeds: document.querySelector('.feeds'),
-};
+  // step 1: get DOM elements
+  const elements = {
+    form: document.querySelector('form'),
+    buttonSubmit: document.querySelector('button[type="submit"]'),
+    input: document.querySelector('#url-input'),
+    feedback: document.querySelector('.feedback'), // a message at the bottom of input
+    posts: document.querySelector('.posts'),
+    feeds: document.querySelector('.feeds'),
+  };
 
   // step 2: init state
   const initialState = {
@@ -138,73 +135,73 @@ const app = () => {
       addedLinks: [], // save already addded links
       errors: null,
       feeds: [],
-      posts: [], 
+      posts: [],
       readPosts: [], // save already read posts
     },
   };
 
-// const state = {
-//   form: {
-//     isError: null,
-//     message: '',
-//   },
-//   feeds: [],
-// };
+  // const state = {
+  //   form: {
+  //     isError: null,
+  //     message: '',
+  //   },
+  //   feeds: [],
+  // };
 
-// step 3: init i18Next
-const i18Instance = i18next.createInstance();
-const defaultLang = 'ru';
-i18Instance.init({
-  lng: defaultLang,
-  resources: { // get from /locales/ru.js
-    ru,
-  },
-})
+  // step 3: init i18Next
+  const i18Instance = i18next.createInstance();
+  const defaultLang = 'ru';
+  i18Instance.init({
+    lng: defaultLang,
+    resources: { // get from /locales/ru.js
+      ru,
+    },
+  })
 
   // step 4: set locale "notOneOf()" for using links were already added
-  .then(() => {
-    yup.setLocale({
-      mixed: {
-        notOneOf: i18Instance.t('addedLink'),
-      },
-      string: {
-        url: i18Instance.t('invalidLink'),
-      },
-    });
+    .then(() => {
+      yup.setLocale({
+        mixed: {
+          notOneOf: i18Instance.t('addedLink'),
+        },
+        string: {
+          url: i18Instance.t('invalidLink'),
+        },
+      });
 
-    // step 5: watch for state
-    const watchedState = onChange(initialState, render(initialState, elements, i18Instance));
-console.log('watchedState', watchedState)
+      // step 5: watch for state
+      const watchedState = onChange(initialState, render(initialState, elements, i18Instance));
+      // console.log('watchedState', watchedState);
 
-    const addFeeds = (id, title, description, watchedState) => {
-      watchedState.form.feeds.push({ id, title, description });
-    };
-  
-    const addPosts = (feedId, posts, watchedState) => {
-      const result = posts.map((post) => ({
-        feedId,
-        id: _.uniqueId(),
-        title: post.title,
-        description: post.description,
-        link: post.link,
-      }));
-      watchedState.form.posts = result.concat(watchedState.form.posts);
-    };
-// const watchedState = onChange(state, render)
+      const addFeeds = (id, title, description, state) => {
+        state.form.feeds.push({ id, title, description });
+      };
 
-elements.form.addEventListener('submit', (e) => {
-  e.preventDefault();
+      const addPosts = (feedId, posts, state) => {
+        const result = posts.map((post) => ({
+          feedId,
+          id: _.uniqueId(),
+          title: post.title,
+          description: post.description,
+          link: post.link,
+        }));
+        state.form.posts = result.concat(watchedState.form.posts);
+      };
+      // const watchedState = onChange(state, render)
 
-  if (!navigator.onLine) {
-    watchedState.form.errors = i18Instance.t('errors.notNetwork');
-    watchedState.form.status = 'failed';
-    return;
-  }
+      elements.form.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-  const formData = new FormData(e.target);
-  const value = formData.get('url'); // get value in input
+        if (!navigator.onLine) {
+          watchedState.form.errors = i18Instance.t('errors.notNetwork');
+          watchedState.form.status = 'failed';
+          return;
+        }
 
-  yup
+        const formData = new FormData(e.target);
+        const value = formData.get('url'); // get value in input
+
+        yup
           .string()
           .trim()
           .url(i18Instance.t('errors.invalidLink')) // instead of message of error - message from locales/ru.js
@@ -212,32 +209,31 @@ elements.form.addEventListener('submit', (e) => {
           .validate(value) // check validation
           .then((url) => getAxiosResponse(url)) // return xmlDocument
           // .then((responce)=> parser(responce.data.contents)) // return {feed, posts}
-          
+
           .then((response) => {
-            console.log('response', response)
+            // console.log('response', response);
             if (!isValidRSS(response.data.contents)) { // Проверка на валидность RSS
               throw new Error(i18Instance.t('errors.notRss')); // Если RSS не валиден, выбрасываем ошибку
             }
             return parser(response.data.contents); // Парсим RSS, return {feed, posts}
           })
 
+        // .then((response) => {
+        //   console.log('response:', response.status)
+        //   // if (response.status !== 200) { // Проверка на статус ответа
+        //   if (response.status === 0) { // Проверка на статус ответа
+        //     throw new Error(i18Instance.t('errors.notNetwork')); // Если статус не 200-ошибка
+        //   }
+        //   return response.data.contents; // Вернуть данные из ответа
+        // })
+        // .then((data) => {
+        //   if (!isValidRSS(data)) { // Проверка на валидность RSS
+        //     throw new Error(i18Instance.t('errors.notRss')); // Если RSS не валиден-ошибка
+        //   }
+        //   return parser(data); // Парсим RSS
+        // })
 
-          // .then((response) => {
-          //   console.log('response:', response.status)
-          //   // if (response.status !== 200) { // Проверка на статус ответа
-          //   if (response.status === 0) { // Проверка на статус ответа
-          //     throw new Error(i18Instance.t('errors.notNetwork')); // Если статус не 200, выбрасываем ошибку
-          //   }
-          //   return response.data.contents; // Вернуть данные из ответа
-          // })
-          // .then((data) => {
-          //   if (!isValidRSS(data)) { // Проверка на валидность RSS
-          //     throw new Error(i18Instance.t('errors.notRss')); // Если RSS не валиден, выбрасываем ошибку
-          //   }
-          //   return parser(data); // Парсим RSS
-          // })
-
-          .then ((parsedRSS) => {
+          .then((parsedRSS) => {
             const title = parsedRSS.feed.channelTitle;
             // console.log(title)
             const description = parsedRSS.feed.channelDescription;
@@ -245,11 +241,11 @@ elements.form.addEventListener('submit', (e) => {
             const feedId = _.uniqueId();
             // console.log('feedId', feedId )
             // console.log(feedId)
-            
+
             // watchedState.form.feeds.push({ feedId, title, description });
-            addFeeds(feedId, title, description, watchedState)
-            addPosts(feedId,parsedRSS.posts, watchedState);
-            console.log('parsedRSS', parsedRSS);
+            addFeeds(feedId, title, description, watchedState);
+            addPosts(feedId, parsedRSS.posts, watchedState);
+            // console.log('parsedRSS', parsedRSS);
           })
           // .then(() => updatePosts(watchedState))
 
@@ -261,27 +257,27 @@ elements.form.addEventListener('submit', (e) => {
             watchedState.form.addedLinks.push(value);
             watchedState.form.status = 'sent';
             watchedState.form.field = value;
-            updatePosts(watchedState)
+            updatePosts(watchedState);
           })
           .catch((error) => { // in case no-valid (if error is on during 'sending' or smth else)
             watchedState.form.valid = 'invalid';
             watchedState.form.errors = error.message; // push error
-            console.log('error.message', error.message)
+            // console.log('error.message', error.message);
             watchedState.form.status = 'failed';
           })
 
-          // .catch((error) => {
-          //   watchedState.form.valid = 'invalid';
-          //   console.log('error.message', error.message)
-          //   if (error.message === 'Network Error') {
-          //     watchedState.form.errors = i18Instance.t('errors.notNetwork');
-          //   // } else if (error.message === 'notRss') {
-          //   //   watchedState.form.errors = i18Instance.t('errors.notRss');
-          //   } else {
-          //     watchedState.form.errors = error.message; // push last error
-          //   }
-          //   watchedState.form.status = 'failed';
-          // })
+        // .catch((error) => {
+        //   watchedState.form.valid = 'invalid';
+        //   console.log('error.message', error.message)
+        //   if (error.message === 'Network Error') {
+        //     watchedState.form.errors = i18Instance.t('errors.notNetwork');
+        //   // } else if (error.message === 'notRss') {
+        //   //   watchedState.form.errors = i18Instance.t('errors.notRss');
+        //   } else {
+        //     watchedState.form.errors = error.message; // push last error
+        //   }
+        //   watchedState.form.status = 'failed';
+        // })
 
           .finally(() => {
             watchedState.form.status = 'filling';
@@ -289,6 +285,5 @@ elements.form.addEventListener('submit', (e) => {
       });
     });
 };
-
 
 export default app;
