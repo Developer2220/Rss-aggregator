@@ -3,7 +3,7 @@ const errorHandler = (elem, err) => {
   elements.input.classList.replace('is-valid', 'is-invalid');
   elements.feedback.classList.replace('text-success', 'text-danger');
   elements.feedback.textContent = err;
-  console.log('err in view', err);
+//   console.log('err in view', err);
   elements.input.focus();
 };
 
