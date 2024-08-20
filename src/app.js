@@ -113,11 +113,11 @@ const app = () => {
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        if (!navigator.onLine) {
-          watchedState.form.errors = i18Instance.t('errors.notNetwork');
-          watchedState.form.status = 'failed';
-          return;
-        }
+        // if (!navigator.onLine) {
+        //   watchedState.form.errors = i18Instance.t('errors.notNetwork');
+        //   watchedState.form.status = 'failed';
+        //   return;
+        // }
 
         const formData = new FormData(e.target);
         const value = formData.get('url'); // get value in input
@@ -155,9 +155,20 @@ const app = () => {
             watchedState.form.field = value;
             updatePosts(watchedState);
           })
-          .catch((error) => { // in case no-valid (if error is on during 'sending' or smth else)
+          // .catch((error) => { // in case no-valid (if error is on during 'sending' or smth else)
+          //   watchedState.form.valid = 'invalid';
+          //   watchedState.form.errors = error.message;
+          //   watchedState.form.status = 'failed';
+          // })
+
+          .catch((error) => {
             watchedState.form.valid = 'invalid';
-            watchedState.form.errors = error.message;
+            // console.log('error.message', error.message)
+            if (error.message === 'Network Error') {
+              watchedState.form.errors = i18Instance.t('errors.notNetwork');
+            } else {
+              watchedState.form.errors = error.message; 
+            }
             watchedState.form.status = 'failed';
           })
           .finally(() => {
