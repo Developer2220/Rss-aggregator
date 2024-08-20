@@ -167,7 +167,7 @@ const app = () => {
             if (error.message === 'Network Error') {
               watchedState.form.errors = i18Instance.t('errors.notNetwork');
             } else {
-              watchedState.form.errors = error.message; 
+              watchedState.form.errors = error.message;
             }
             watchedState.form.status = 'failed';
           })
