@@ -29,7 +29,7 @@ const updatePosts = (state) => {
       });
     })
     .catch((error) => {
-      state.form.errors = error.message;
+      console.error('Ошибка при обновлении постов:', error.message);
     })
     .then(() => {
       setTimeout(() => updatePosts(state), 5000);
