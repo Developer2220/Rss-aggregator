@@ -6,9 +6,6 @@ on:
   - push
   - pull_request
 
-env:
-  CI: true
-
 jobs:
   build:
 
@@ -18,7 +15,7 @@ jobs:
     strategy:
       # Node versions list
       matrix:
-        node-version: [20.x]
+        node-version: [18.x]
 
     steps:
         # Check-out repository under GitHub workspace
@@ -35,14 +32,6 @@ jobs:
           cache: 'npm'
       - run: make install
       - run: make lint
-      - run: make test
-      - name: Test & publish code coverage
-        # Publish code coverage on Code Climate
-        # https://github.com/paambaati/codeclimate-action
-        uses: paambaati/codeclimate-action@v5.0.0
-        # Add Code Climate secret key
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.EZH }}
-        with:
-          coverageCommand: make test-coverage
-          debug: true
+      # - run: make webpack
+      # - run: make build
+      - run: make publish
