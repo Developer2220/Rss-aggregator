@@ -20,6 +20,6 @@ export default (data) => {
   });
 
   const parsedRSS = { feed, posts };
-
-  return Promise.resolve(parsedRSS);
+  
+  return parsedRSS;
 };

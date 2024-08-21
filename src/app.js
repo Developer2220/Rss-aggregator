@@ -15,21 +15,33 @@ const updatePosts = (state) => {
   const url = state.form.field;
 
   getAxiosResponse(url)
-    .then((data) => {
-      parser(data.data.contents);
-    })
-    .then((newData) => {
-      const newPosts = newData.posts;
-      newPosts.forEach((newPost) => {
-        const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+    .then((response) => {
+      // console.log('response', response)
 
-        if (foundPosts) {
-          state.form.posts.push(newPost);
-        }
-      });
-    })
+      const data = parser(response.data.contents);
+
+      console.log('data', data)
+      const newPosts = data.posts;
+      console.log('newPosts', newPosts)
+    //   newPosts.forEach((newPost) => {
+    //     const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+
+    //     if (foundPosts) {
+    //       state.form.posts.push(newPost);
+    //     }
+    //   });
+    // })
+
+    return Promise.all(newPosts.map((newPost) => {
+      const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+
+      if (foundPosts) {
+        state.form.posts.push(newPost);
+      }
+    }));
+  })
     .catch((error) => {
-      console.error('Ошибка при обновлении постов:', error.message);
+      console.error('Ошибка при обновлении постов:', error.message); 
     })
     .then(() => {
       setTimeout(() => updatePosts(state), 5000);
@@ -112,6 +124,7 @@ const app = () => {
 
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
+        watchedState.form.status = 'sending';
         const formData = new FormData(e.target);
         const value = formData.get('url'); // get value in input
 
@@ -127,10 +140,7 @@ const app = () => {
             if (!isValidRSS(response.data.contents)) {
               throw new Error(i18Instance.t('errors.notRss')); // If RSS invalid - error
             }
-            return parser(response.data.contents);
-          })
-
-          .then((parsedRSS) => {
+            const parsedRSS = parser(response.data.contents);
             const title = parsedRSS.feed.channelTitle;
             const description = parsedRSS.feed.channelDescription;
             const feedId = _.uniqueId();
@@ -140,15 +150,14 @@ const app = () => {
           })
           .then(() => { // in case - validation
             watchedState.form.valid = 'valid';
-            watchedState.form.status = 'sending';
-          })
-          .then(() => { // add in alreadyAdded when previous success
+            
+          // })
+          // .then(() => { // add in alreadyAdded when previous success
             watchedState.form.addedLinks.push(value);
             watchedState.form.status = 'sent';
             watchedState.form.field = value;
-            updatePosts(watchedState);
+            console.log('watchedState', watchedState  )
           })
-
           .catch((error) => {
             watchedState.form.valid = 'invalid';
             // console.log('error.message', error.message)
@@ -163,6 +172,7 @@ const app = () => {
             watchedState.form.status = 'filling';
           });
       });
+      updatePosts(watchedState);
     });
 };
 
