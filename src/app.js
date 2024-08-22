@@ -20,43 +20,46 @@ const updatePosts = (state) => {
 
       const data = parser(response.data.contents);
 
-      console.log('data', data)
+      console.log('data', data);
       const newPosts = data.posts;
-      console.log('newPosts', newPosts)
-    //   newPosts.forEach((newPost) => {
-    //     const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+      console.log('newPosts', newPosts);
+      //   newPosts.forEach((newPost) => {
+      //     const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
 
-    //     if (foundPosts) {
-    //       state.form.posts.push(newPost);
-    //     }
-    //   });
-    // })
+      //     if (foundPosts) {
+      //       state.form.posts.push(newPost);
+      //     }
+      //   });
+      // })
 
-    return Promise.all(newPosts.map((newPost) => {
-      const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
+      return Promise.all(newPosts.map((newPost) => {
+        const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
 
-      if (foundPosts) {
-        state.form.posts.push(newPost);
-      }
-    }));
-  })
+        if (foundPosts) {
+          state.form.posts.push(newPost);
+        }
+      }));
+    })
     .catch((error) => {
-      console.error('Ошибка при обновлении постов:', error.message); 
+      console.error('Ошибка при обновлении постов:', error.message);
     })
     .then(() => {
       setTimeout(() => updatePosts(state), 5000);
     });
 };
 
-const isValidRSS = (rssData) => {
-  try {
-    const parserData = new DOMParser();
-    const xmlDoc = parserData.parseFromString(rssData, 'text/xml');
-    return xmlDoc.querySelector('rss') !== null;
-  } catch (e) {
-    return false;
-  }
-};
+// const isValidRSS = (rssData) => {
+//   try {
+//     const parserData = new DOMParser();
+//     const xmlDoc = parserData.parseFromString(rssData, 'text/xml');
+//     return xmlDoc.querySelector('rss') !== null;
+//   } catch (e) {
+//     return false;
+//   }
+// };
+
+const i18Instance = i18next.createInstance();
+const defaultLang = 'ru';
 
 const app = () => {
   // step 1: get DOM elements
@@ -83,9 +86,9 @@ const app = () => {
     },
   };
 
-  // step 3: init i18Next
-  const i18Instance = i18next.createInstance();
-  const defaultLang = 'ru';
+  //step 3: init i18Next
+  // const i18Instance = i18next.createInstance();
+  // const defaultLang = 'ru';
   i18Instance.init({
     lng: defaultLang,
     resources: { // get from /locales/ru.js
@@ -137,9 +140,9 @@ const app = () => {
           .then((url) => getAxiosResponse(url)) // return xmlDocument
 
           .then((response) => {
-            if (!isValidRSS(response.data.contents)) {
-              throw new Error(i18Instance.t('errors.notRss')); // If RSS invalid - error
-            }
+            // if (!isValidRSS(response.data.contents)) {
+            //   throw new Error(i18Instance.t('errors.notRss')); // If RSS invalid - error
+            // }
             const parsedRSS = parser(response.data.contents);
             const title = parsedRSS.feed.channelTitle;
             const description = parsedRSS.feed.channelDescription;
@@ -150,13 +153,13 @@ const app = () => {
           })
           .then(() => { // in case - validation
             watchedState.form.valid = 'valid';
-            
-          // })
-          // .then(() => { // add in alreadyAdded when previous success
+
+            // })
+            // .then(() => { // add in alreadyAdded when previous success
             watchedState.form.addedLinks.push(value);
             watchedState.form.status = 'sent';
             watchedState.form.field = value;
-            console.log('watchedState', watchedState  )
+            console.log('watchedState', watchedState);
           })
           .catch((error) => {
             watchedState.form.valid = 'invalid';
@@ -176,4 +179,6 @@ const app = () => {
     });
 };
 
+export { i18Instance };
 export default app;
+
