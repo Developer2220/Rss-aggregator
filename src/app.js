@@ -20,9 +20,9 @@ const updatePosts = (state) => {
 
       const data = parser(response.data.contents);
 
-      console.log('data', data);
+      // console.log('data', data);
       const newPosts = data.posts;
-      console.log('newPosts', newPosts);
+      // console.log('newPosts', newPosts);
       //   newPosts.forEach((newPost) => {
       //     const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
 
@@ -70,7 +70,13 @@ const app = () => {
     feedback: document.querySelector('.feedback'), // a message at the bottom of input
     posts: document.querySelector('.posts'),
     feeds: document.querySelector('.feeds'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    modalLink: document.querySelector('.full-article'),
   };
+
+  // console.log('elements.modalTitle', elements.modalTitle)
+  // console.log('elements.modalBody', elements.modalBody)
 
   // step 2: init state
   const initialState = {
@@ -176,8 +182,23 @@ const app = () => {
           });
       });
       updatePosts(watchedState);
+
+      elements.form.posts.addEventListener('click', (e) => {
+        const idClick = e.target.dataset.id; 
+        console.log('idClick', idClick)
+        if (idClick) {
+          const selectPost = watchedState.form.posts.find((post) => idClick === post.id);
+          if (selectPost) {
+            watchedState.form.readPost.push(selectPost);
+          }
+        }
+        console.log('watchedState', watchedState)
+      });
+      // console.log('watchedState', watchedState)
+
     });
 };
+
 
 export { i18Instance };
 export default app;
