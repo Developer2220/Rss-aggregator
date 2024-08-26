@@ -3,107 +3,83 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios from 'axios';
 import _ from 'lodash';
-// import { uniqueId } from 'lodash';
 import render from './view.js';
 import ru from './locales/ru.js';
 import parser from './parser.js';
 
-const getAxiosResponse = (link) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`);
+const getAxiosResponse = (link) => axios.get(
+  `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(
+    link,
+  )}`,
+);
 
 const updatePosts = (state) => {
   const existPosts = state.form.posts;
   const oldPosts = _.cloneDeep(existPosts);
-  const url = state.form.field;
+  const urls = state.form.addedLinks;
 
-  getAxiosResponse(url)
-    .then((response) => {
-      // console.log('response', response)
+  const requests = urls.map((url) => getAxiosResponse(url).then((response) => {
+    const data = parser(response.data.contents);
+    return data.posts;
+  }));
 
-      const data = parser(response.data.contents);
+  Promise.all(requests)
+    .then((allNewPosts) => {
+      allNewPosts.flat().forEach((newPost) => {
+        const isPostNew = !oldPosts.find(
+          (oldPost) => oldPost.link === newPost.link,
+        );
 
-      // console.log('data', data);
-      const newPosts = data.posts;
-      // console.log('newPosts', newPosts);
-      //   newPosts.forEach((newPost) => {
-      //     const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
-
-      //     if (foundPosts) {
-      //       state.form.posts.push(newPost);
-      //     }
-      //   });
-      // })
-
-      return Promise.all(newPosts.map((newPost) => {
-        const foundPosts = !oldPosts.find((oldPost) => oldPost.link === newPost.link);
-
-        if (foundPosts) {
+        if (isPostNew) {
+          newPost.id = _.uniqueId();
           state.form.posts.push(newPost);
         }
-      }));
+      });
     })
     .catch((error) => {
       console.error('Ошибка при обновлении постов:', error.message);
     })
-    .then(() => {
+    .finally(() => {
       setTimeout(() => updatePosts(state), 5000);
     });
 };
-
-// const isValidRSS = (rssData) => {
-//   try {
-//     const parserData = new DOMParser();
-//     const xmlDoc = parserData.parseFromString(rssData, 'text/xml');
-//     return xmlDoc.querySelector('rss') !== null;
-//   } catch (e) {
-//     return false;
-//   }
-// };
 
 const i18Instance = i18next.createInstance();
 const defaultLang = 'ru';
 
 const app = () => {
-  // step 1: get DOM elements
   const elements = {
     form: document.querySelector('form'),
     buttonSubmit: document.querySelector('button[type="submit"]'),
     input: document.querySelector('#url-input'),
-    feedback: document.querySelector('.feedback'), // a message at the bottom of input
+    feedback: document.querySelector('.feedback'),
     posts: document.querySelector('.posts'),
     feeds: document.querySelector('.feeds'),
     modalTitle: document.querySelector('.modal-title'),
     modalBody: document.querySelector('.modal-body'),
-    modalLink: document.querySelector('.full-article'),
   };
 
-  // console.log('elements.modalTitle', elements.modalTitle)
-  // console.log('elements.modalBody', elements.modalBody)
-
-  // step 2: init state
   const initialState = {
     form: {
       field: '',
       status: 'filling',
       valid: 'valid',
-      addedLinks: [], // save already addded links
+      addedLinks: [],
       errors: null,
       feeds: [],
       posts: [],
-      readPosts: [], // save already read posts
+      readPosts: [],
     },
   };
 
-  //step 3: init i18Next
-  // const i18Instance = i18next.createInstance();
-  // const defaultLang = 'ru';
-  i18Instance.init({
-    lng: defaultLang,
-    resources: { // get from /locales/ru.js
-      ru,
-    },
-  })
+  i18Instance
+    .init({
+      lng: defaultLang,
+      resources: {
+        ru,
+      },
+    })
 
-  // step 4: set locale "notOneOf()" for using links were already added
     .then(() => {
       yup.setLocale({
         mixed: {
@@ -114,31 +90,18 @@ const app = () => {
         },
       });
 
-      // step 5: watch for state
-      const watchedState = onChange(initialState, render(initialState, elements, i18Instance));
+      const watchedState = onChange(
+        initialState,
+        render(initialState, elements, i18Instance),
+      );
 
       const addFeeds = (id, title, description, state) => {
         state.form.feeds.push({ id, title, description });
       };
 
-      // const addPosts = (feedId, posts, state) => {
-      //   const result = posts.map((post) => ({
-      //     feedId,
-      //     id: _.uniqueId(),
-          
-      //     title: post.title,
-      //     description: post.description,
-      //     link: post.link,
-      //   }));
-      //   state.form.posts = result.concat(watchedState.form.posts);
-      //   console.log('Updated posts:', state.form.posts);
-      // };
-
       const addPosts = (feedId, posts, state) => {
-        console.log('addPosts called with feedId:', feedId, 'and posts:', posts);
         const result = posts.map((post) => {
           const postId = _.uniqueId();
-          console.log('Generated postId:', postId);  // Логируем каждый сгенерированный ID
           return {
             feedId,
             id: postId,
@@ -147,47 +110,27 @@ const app = () => {
             link: post.link,
           };
         });
-        console.log('result', result )
         state.form.posts = result.concat(state.form.posts);
-        // state.form.posts = [...result, ...state.form.posts];
-
-        console.log('Updated posts with IDs:', state.form.posts);  // Логируем обновленные посты
       };
-
-      // const createPost = (newPosts) => {
-      //   const posts = newPosts.map((item) => {
-      //     const id = uniqueId();
-      //     const { title } = item;
-      //     const { description } = item;
-      //     const { link } = item;
-      //     return {
-      //       id,
-      //       title,
-      //       description,
-      //       link,
-      //     };
-      //   });
-      //   return posts;
-      // };
 
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         watchedState.form.status = 'sending';
         const formData = new FormData(e.target);
-        const value = formData.get('url'); // get value in input
+        const value = formData.get('url');
 
         yup
           .string()
           .trim()
-          .url(i18Instance.t('errors.invalidLink')) // instead of message of error - message from locales/ru.js
-          .notOneOf(watchedState.form.addedLinks, i18Instance.t('errors.addedLink'))
-          .validate(value) // check validation
-          .then((url) => getAxiosResponse(url)) // return xmlDocument
+          .url(i18Instance.t('errors.invalidLink'))
+          .notOneOf(
+            watchedState.form.addedLinks,
+            i18Instance.t('errors.addedLink'),
+          )
+          .validate(value)
+          .then((url) => getAxiosResponse(url))
 
           .then((response) => {
-            // if (!isValidRSS(response.data.contents)) {
-            //   throw new Error(i18Instance.t('errors.notRss')); // If RSS invalid - error
-            // }
             const parsedRSS = parser(response.data.contents);
             const title = parsedRSS.feed.channelTitle;
             const description = parsedRSS.feed.channelDescription;
@@ -195,24 +138,20 @@ const app = () => {
 
             addFeeds(feedId, title, description, watchedState);
             addPosts(feedId, parsedRSS.posts, watchedState);
-            // createPost(parsedRSS.posts)
-            console.log('Called addPosts');
           })
-          .then(() => { // in case - validation
+          .then(() => {
             watchedState.form.valid = 'valid';
-
-            // })
-            // .then(() => { // add in alreadyAdded when previous success
             watchedState.form.addedLinks.push(value);
             watchedState.form.status = 'sent';
             watchedState.form.field = value;
-            console.log('watchedState', watchedState);
           })
           .catch((error) => {
             watchedState.form.valid = 'invalid';
-            // console.log('error.message', error.message)
             if (error.message === 'Network Error') {
               watchedState.form.errors = i18Instance.t('errors.notNetwork');
+            }
+            if (error.message === 'notRss') {
+              watchedState.form.errors = i18Instance.t('errors.notRss');
             } else {
               watchedState.form.errors = error.message;
             }
@@ -222,27 +161,16 @@ const app = () => {
             watchedState.form.status = 'filling';
           });
       });
-     
 
       elements.posts.addEventListener('click', (e) => {
-        const idClick = e.target.dataset.id; 
-        // console.log('idClick', idClick)
+        const idClick = e.target.dataset.id;
         if (idClick) {
-          // const selectPost = watchedState.form.posts.find((post) => idClick === post.id);
-          watchedState.form.readPosts.push(idClick)
-          // if (selectPost) {
-          //   watchedState.form.readPost.push(selectPost);
-          // }
+          watchedState.form.readPosts.push(idClick);
         }
-        // console.log('watchedState', watchedState)
       });
-      // console.log('watchedState', watchedState)
-
       updatePosts(watchedState);
     });
 };
 
-
 export { i18Instance };
 export default app;
-
