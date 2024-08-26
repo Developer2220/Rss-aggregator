@@ -5,7 +5,6 @@ export default (data) => {
   const parseError = xmlDocument.querySelector('parsererror');
 
   if (parseError) {
-    // const error = new Error(i18Instance.t('errors.notRss'));
     const error = new Error(parseError.textContent = 'notRss');
     error.isParseError = true;
     throw error;

@@ -146,7 +146,6 @@ const app = () => {
             watchedState.form.field = value;
           })
           .catch((error) => {
-            console.log('error.message', error.message);
             watchedState.form.valid = 'invalid';
             if (error.message === 'Network Error') {
               watchedState.form.errors = i18Instance.t('errors.notNetwork');
@@ -160,7 +159,6 @@ const app = () => {
           .finally(() => {
             watchedState.form.status = 'filling';
           });
-        console.log('watchedState', watchedState);
       });
 
       elements.posts.addEventListener('click', (e) => {
