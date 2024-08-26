@@ -17,23 +17,69 @@ const finishErrorHandler = (elem, i18Instance) => {
 
 
 
-const renderModalWindow = (elem, posts) => {
-  const elements = { ...elem };
-//   const modalTitle = document.querySelector(".modal-title");
-//   const modalBody = document.querySelector(".modal-body");
+// const renderModalWindow = (elem, posts) => {
+//   const elements = { ...elem };
+// //   const modalTitle = document.querySelector(".modal-title");
+// //   const modalBody = document.querySelector(".modal-body");
 
-  const result = posts.forEach((post) => {
-    elements.modalTitle.textContent = post.title;
-    elements.modalBody.textContent = post.description;
-});
-// console.log('result', result)
-return result;
-};
+//   const result = posts.forEach((post) => {
+//     console.log('post', post)
+    
+//     elements.modalTitle.textContent = 'title';
+//     elements.modalBody.textContent = 'description';
+// });
+// // console.log('result', result)
+// return result;
+// };
+
+
+// const renderModalWindow = (elem, posts, postId) => {
+//     const elements = { ...elem };
+//     // console.log('posts', posts)
+//     // Найти нужный пост по его id
+
+//     console.log('posts:', posts);
+//     console.log('postId:', postId);
+    
+//     const post = posts.find((post) => post.id === postId[postId.length - 1]);
+//     console.log('post', post)
+  
+//     if (post) {
+//     //   Установить текст заголовка и описания в модальное окно
+//       elements.modalTitle.textContent = post.title;
+//       elements.modalBody.textContent = post.description;
+//     }
+
+//      const postLink = elements.posts.querySelector(`a[data-id="${post.id}"]`);
+//   if (postLink) {
+//     postLink.classList.replace('fw-bold', 'fw-normal');
+//   }
+//   };
 
 // if (!state.form.readPosts.includes(post.id)) {
 //     state.form.readPosts.push(post.id);
-//     a.classList.replace('fw-bold', 'fw-normal');
+    // a.classList.replace('fw-bold', 'fw-normal');
 //   }
+
+const renderModalWindow = (elements, post) => {
+
+    if (!post) {
+        console.error('Post not found:', post);
+        return;
+      }
+
+    // Обновляем заголовок и описание в модальном окне
+    elements.modalTitle.textContent = post.title;
+    elements.modalBody.textContent = post.description;
+  
+    // Меняем класс ссылки с 'fw-bold' на 'fw-normal'
+    const postLink = elements.posts.querySelector(`a[data-id="${post.id}"]`);
+    if (postLink) {
+      postLink.classList.replace('fw-bold', 'fw-normal');
+    }
+  };
+  
+
 
 const makeContainer = (elements, state, title, i18Instance) => {
   elements[title].textContent = "";
@@ -121,7 +167,7 @@ const render = (state, elements, i18Instance) => (path, value) => {
 
   console.log('Path:', path);
   console.log('Value:', value);
-  
+
   switch (path) {
     case "form.status":
       if (value === "failed") {
@@ -140,7 +186,15 @@ const render = (state, elements, i18Instance) => (path, value) => {
       break;
     }
     case "form.readPosts": {
-      renderModalWindow(elements, value)
+    //  let postId = value;
+    // renderModalWindow(elements, state.form.posts, postId);
+
+    const postId = value[value.length - 1]; // Получаем последний прочитанный пост
+    console.log('postId:', postId);  
+      const post = state.form.posts.find((p) => p.id === postId);
+      console.log('post:', post);  
+      renderModalWindow(elements, post);
+
       break
     }
     default:

@@ -3,6 +3,7 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios from 'axios';
 import _ from 'lodash';
+// import { uniqueId } from 'lodash';
 import render from './view.js';
 import ru from './locales/ru.js';
 import parser from './parser.js';
@@ -120,16 +121,54 @@ const app = () => {
         state.form.feeds.push({ id, title, description });
       };
 
+      // const addPosts = (feedId, posts, state) => {
+      //   const result = posts.map((post) => ({
+      //     feedId,
+      //     id: _.uniqueId(),
+          
+      //     title: post.title,
+      //     description: post.description,
+      //     link: post.link,
+      //   }));
+      //   state.form.posts = result.concat(watchedState.form.posts);
+      //   console.log('Updated posts:', state.form.posts);
+      // };
+
       const addPosts = (feedId, posts, state) => {
-        const result = posts.map((post) => ({
-          feedId,
-          id: _.uniqueId(),
-          title: post.title,
-          description: post.description,
-          link: post.link,
-        }));
-        state.form.posts = result.concat(watchedState.form.posts);
+        console.log('addPosts called with feedId:', feedId, 'and posts:', posts);
+        const result = posts.map((post) => {
+          const postId = _.uniqueId();
+          console.log('Generated postId:', postId);  // Логируем каждый сгенерированный ID
+          return {
+            feedId,
+            id: postId,
+            title: post.title,
+            description: post.description,
+            link: post.link,
+          };
+        });
+        console.log('result', result )
+        state.form.posts = result.concat(state.form.posts);
+        // state.form.posts = [...result, ...state.form.posts];
+
+        console.log('Updated posts with IDs:', state.form.posts);  // Логируем обновленные посты
       };
+
+      // const createPost = (newPosts) => {
+      //   const posts = newPosts.map((item) => {
+      //     const id = uniqueId();
+      //     const { title } = item;
+      //     const { description } = item;
+      //     const { link } = item;
+      //     return {
+      //       id,
+      //       title,
+      //       description,
+      //       link,
+      //     };
+      //   });
+      //   return posts;
+      // };
 
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -156,6 +195,8 @@ const app = () => {
 
             addFeeds(feedId, title, description, watchedState);
             addPosts(feedId, parsedRSS.posts, watchedState);
+            // createPost(parsedRSS.posts)
+            console.log('Called addPosts');
           })
           .then(() => { // in case - validation
             watchedState.form.valid = 'valid';
@@ -181,21 +222,23 @@ const app = () => {
             watchedState.form.status = 'filling';
           });
       });
-      updatePosts(watchedState);
+     
 
-      elements.form.posts.addEventListener('click', (e) => {
+      elements.posts.addEventListener('click', (e) => {
         const idClick = e.target.dataset.id; 
-        console.log('idClick', idClick)
+        // console.log('idClick', idClick)
         if (idClick) {
-          const selectPost = watchedState.form.posts.find((post) => idClick === post.id);
-          if (selectPost) {
-            watchedState.form.readPost.push(selectPost);
-          }
+          // const selectPost = watchedState.form.posts.find((post) => idClick === post.id);
+          watchedState.form.readPosts.push(idClick)
+          // if (selectPost) {
+          //   watchedState.form.readPost.push(selectPost);
+          // }
         }
-        console.log('watchedState', watchedState)
+        // console.log('watchedState', watchedState)
       });
       // console.log('watchedState', watchedState)
 
+      updatePosts(watchedState);
     });
 };
 
