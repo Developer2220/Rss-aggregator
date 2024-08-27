@@ -138,8 +138,7 @@ const app = () => {
 
             addFeeds(feedId, title, description, watchedState);
             addPosts(feedId, parsedRSS.posts, watchedState);
-          })
-          .then(() => {
+
             watchedState.form.valid = 'valid';
             watchedState.form.addedLinks.push(value);
             watchedState.form.status = 'sent';
